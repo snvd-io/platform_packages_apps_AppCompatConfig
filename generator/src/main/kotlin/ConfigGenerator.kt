@@ -44,7 +44,7 @@ fun getUnsortedConfigs(): List<AppCompatConfig> {
         )
     }
 
-    val chromiumChanges = arrayOf(
+    val chromiumChanges = listOf(
         // blocked unconditionally for Vanadium in the OS, but might be required for other
         // Chromium-based browsers
         ALLOW_STORAGE_DYN_CODE_EXEC,
@@ -56,7 +56,7 @@ fun getUnsortedConfigs(): List<AppCompatConfig> {
 
     val vanadiumCert = certs("c6adb8b83c6d4c17d292afde56fd488a51d316ff8f2c11c5410223bff8a7dbb3")
 
-    arrayOf("app.vanadium.browser", "org.chromium.chrome" /* original-package */, ).forEach {
+    listOf("app.vanadium.browser", "org.chromium.chrome" /* original-package */, ).forEach {
         l += app(it, vanadiumCert) { changes_(chromiumChanges) }
     }
 
@@ -148,14 +148,14 @@ fun app(name: String, certDigests: List<CertSha256>, configs: List<CompatConfig.
 }
 
 fun CompatConfig.Builder.changes(vararg list: CompatChange) {
+    compatChanges = compatChanges or enumBits(list.asList())
+}
+
+fun CompatConfig.Builder.changes_(list: List<CompatChange>) {
     compatChanges = compatChanges or enumBits(list)
 }
 
-fun CompatConfig.Builder.changes_(list: Array<CompatChange>) {
-    compatChanges = compatChanges or enumBits(list)
-}
-
-fun <T : ProtocolMessageEnum> enumBits(bits: Array<T>): Long {
+fun <T : ProtocolMessageEnum> enumBits(bits: List<T>): Long {
     var v = 0L
     bits.forEach {
         v = v or (1 shl it.number).toLong()
